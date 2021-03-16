@@ -41,3 +41,26 @@
   + XmlUtil
   
   
+
+## 使用方式
+
+分页
+
+继承BaseController后使用`startPage();`方法
+
+```java
+@RestController
+public class DemoController extends BaseController {
+
+    @Resource
+    private PersonService personService;
+
+    @GetMapping("/page")
+    public ApiResult page() {
+        startPage();
+        List<Person> list = personService.list();
+        return ApiResult.success(list);
+    }
+} 
+```
+
