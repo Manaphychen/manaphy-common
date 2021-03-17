@@ -2,7 +2,6 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   com.cgp.common.handler.GlobalExceptionHandler,\
   com.cgp.common.aspect.WebLogAspect,\
   com.cgp.common.aspect.LimitingAspect,\
-  com.cgp.common.aspect.IdempotentSubmitAspect,\
   com.cgp.common.aspect.NoConcurrentSubmitAspect,\
   com.cgp.common.autoconfigure.RestTemplateConfig,\
   com.cgp.common.autoconfigure.MybatisPlusConfig,\
