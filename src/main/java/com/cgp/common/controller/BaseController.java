@@ -3,8 +3,8 @@ package com.cgp.common.controller;
 import com.cgp.common.constant.Constants;
 import com.cgp.common.entity.PageSupport;
 import com.cgp.common.exception.CustomException;
-import com.cgp.common.utils.DateTimeUtils;
 import com.cgp.common.utils.StringUtils;
+import com.cgp.common.utils.TimeUtils;
 import com.github.pagehelper.PageHelper;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
@@ -29,7 +29,7 @@ public class BaseController {
         binder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String text) {
-                setValue(DateTimeUtils.parseDate(text));
+                setValue(TimeUtils.parseDate(text));
             }
         });
     }

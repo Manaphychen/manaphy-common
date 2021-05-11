@@ -5,6 +5,7 @@ import org.apache.commons.lang3.time.DateUtils;
 
 import java.lang.management.ManagementFactory;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -14,16 +15,16 @@ import java.util.Date;
  * @date 2020-10-13
  */
 @SuppressWarnings("unused")
-public class DateTimeUtils extends DateUtils {
+public class TimeUtils extends DateUtils {
 
     private static final String[] PARSE_PATTERNS = {
             "yyyy-MM-dd", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm", "yyyy-MM",
             "yyyy/MM/dd", "yyyy/MM/dd HH:mm:ss", "yyyy/MM/dd HH:mm", "yyyy/MM",
-            "yyyy.MM.dd", "yyyy.MM.dd HH:mm:ss", "yyyy.MM.dd HH:mm", "yyyy.MM"};
+            "yyyy.MM.dd", "yyyy.MM.dd HH:mm:ss", "yyyy.MM.dd HH:mm", "yyyy.MM", "HH:mm"};
 
     public static final String DATE_PATTERN = "yyyy-MM-dd";
     public static final String TIME_PATTERN = "HH:mm:ss";
-    public static final String DATE_TIME_PATTERN = "HH:mm:ss";
+    public static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     /**
      * 获取服务器启动时间
@@ -38,7 +39,7 @@ public class DateTimeUtils extends DateUtils {
      *
      * @return {@link String}
      */
-    public static String getDate() {
+    public static String getTodayDate() {
         return DateFormatUtils.format(new Date(), DATE_PATTERN);
     }
 
@@ -47,8 +48,28 @@ public class DateTimeUtils extends DateUtils {
      *
      * @return {@link String}
      */
-    public static String getTime() {
+    public static String getTodayTime() {
         return DateFormatUtils.format(new Date(), TIME_PATTERN);
+    }
+
+    /**
+     * 获取今天时间字符串
+     *
+     * @return {@link String}
+     */
+    public static String getTodayDateTime() {
+        return DateFormatUtils.format(new Date(), DATE_TIME_PATTERN);
+    }
+
+    /**
+     * 获取星期
+     *
+     * @param date 日期
+     * @return 如:星期日
+     */
+    public static String getWeek(Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("EEEE");
+        return sdf.format(date);
     }
 
     /**
@@ -63,15 +84,55 @@ public class DateTimeUtils extends DateUtils {
     }
 
     /**
+     * 格式化日期为日期格式
+     *
+     * @param date 日期
+     * @return {@link String}
+     */
+    public static String formatDate(Date date) {
+        return DateFormatUtils.format(date, DATE_PATTERN);
+    }
+
+    /**
+     * 格式化日期为日期时间格式
+     *
+     * @param date 日期
+     * @return {@link String}
+     */
+    public static String formatDateTime(Date date) {
+        return DateFormatUtils.format(date, DATE_TIME_PATTERN);
+    }
+
+    /**
      * 判断是否是今天
      *
      * @param date 日期
      * @return boolean
      */
     public static boolean isToday(Date date) {
-        String today = getDate();
+        String today = getTodayDate();
         String format = format(date, DATE_PATTERN);
         return today.equals(format);
+    }
+
+    /**
+     * 判断时间是否在此之前
+     *
+     * @param date 日期
+     * @return boolean
+     */
+    public static boolean beforeNow(Date date) {
+        return new Date().after(date);
+    }
+
+    /**
+     * 判断时间是否在此之后
+     *
+     * @param date 日期
+     * @return boolean
+     */
+    public static boolean afterNow(Date date) {
+        return new Date().before(date);
     }
 
     /**
