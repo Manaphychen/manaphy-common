@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -161,10 +162,34 @@ public class JsonUtil {
     }
 
     /**
+     * 解析数组
+     *
+     * @param json json
+     * @return {@link List<String>}
+     */
+    public static List<String> parseArray(String json) {
+        try {
+            JsonNode jsonNode = MAPPER.readTree(json);
+            if (!jsonNode.isArray()) {
+                throw new RuntimeException("不是Json数组");
+            }
+            int size = jsonNode.size();
+            List<String> list = new ArrayList<>();
+            for (JsonNode node : jsonNode) {
+                list.add(node.toString());
+            }
+            return list;
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
      * 解析Json数组获取第一个数组
      *
-     * @param json  json
-     * @param key key
+     * @param json json
+     * @param key  key
      * @return {@link String}
      */
     public static String parseArrayJson(String json, String key) {
