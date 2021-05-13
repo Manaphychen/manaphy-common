@@ -244,21 +244,22 @@ public class SecureUtil {
      * 读取公钥
      *
      * @param publicPath 公钥路径
-     * @return {@link PublicKey}* @throws Exception 异常
+     * @return {@link PublicKey}
      */
-    public static PublicKey getPublicKey(String publicPath) throws IOException, InvalidKeySpecException {
-        // 将文件内容转为字符串
-        String publicKeyString = FileUtils.readFileToString(new File(publicPath), Charset.defaultCharset());
-        // 获取密钥工厂
-        KeyFactory keyFactory = null;
+    public static PublicKey getPublicKey(String publicPath) {
         try {
-            keyFactory = KeyFactory.getInstance(ALGORITHM_RSA);
-        } catch (NoSuchAlgorithmException ignore) {
+            // 将文件内容转为字符串
+            String publicKeyString = FileUtils.readFileToString(new File(publicPath), Charset.defaultCharset());
+            // 获取密钥工厂
+            KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM_RSA);
+            // 构建密钥规范 进行Base64解码
+            X509EncodedKeySpec spec = new X509EncodedKeySpec(base64decode(publicKeyString));
+            // 生成公钥
+            return keyFactory.generatePublic(spec);
+        } catch (NoSuchAlgorithmException | IOException | InvalidKeySpecException e) {
+            e.printStackTrace();
         }
-        // 构建密钥规范 进行Base64解码
-        X509EncodedKeySpec spec = new X509EncodedKeySpec(base64decode(publicKeyString));
-        // 生成公钥
-        return keyFactory.generatePublic(spec);
+        return null;
     }
 
     /**
@@ -267,19 +268,20 @@ public class SecureUtil {
      * @param priPath 私钥路径
      * @return {@link PrivateKey}* @throws Exception 异常
      */
-    public static PrivateKey getPrivateKey(String priPath) throws IOException, InvalidKeySpecException {
-        // 将文件内容转为字符串
-        String privateKeyString = FileUtils.readFileToString(new File(priPath), Charset.defaultCharset());
-        // 获取密钥工厂
-        KeyFactory keyFactory = null;
+    public static PrivateKey getPrivateKey(String priPath) {
         try {
-            keyFactory = KeyFactory.getInstance(ALGORITHM_RSA);
-        } catch (NoSuchAlgorithmException ignore) {
+            // 将文件内容转为字符串
+            String privateKeyString = FileUtils.readFileToString(new File(priPath), Charset.defaultCharset());
+            // 获取密钥工厂
+            KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM_RSA);
+            // 构建密钥规范 进行Base64解码
+            PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(base64decode(privateKeyString));
+            // 生成私钥
+            return keyFactory.generatePrivate(spec);
+        } catch (NoSuchAlgorithmException | IOException | InvalidKeySpecException e) {
+            e.printStackTrace();
         }
-        // 构建密钥规范 进行Base64解码
-        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(base64decode(privateKeyString));
-        // 生成私钥
-        return keyFactory.generatePrivate(spec);
+        return null;
     }
 
     /**
@@ -287,30 +289,31 @@ public class SecureUtil {
      *
      * @param pubPath : 公钥保存路径
      * @param priPath : 私钥保存路径
-     * @throws Exception 异常
      */
-    public static void generateKeyToFile(String pubPath, String priPath) throws IOException {
-        // 获取密钥对生成器
-        KeyPairGenerator keyPairGenerator = null;
+    public static void generateKeyToFile(String pubPath, String priPath) {
+
         try {
-            keyPairGenerator = KeyPairGenerator.getInstance(ALGORITHM_RSA);
-        } catch (NoSuchAlgorithmException e) {
+            // 获取密钥对生成器
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(ALGORITHM_RSA);
+            // 获取密钥对
+            KeyPair keyPair = keyPairGenerator.generateKeyPair();
+            // 获取公钥
+            PublicKey publicKey = keyPair.getPublic();
+            // 获取私钥
+            PrivateKey privateKey = keyPair.getPrivate();
+            // 获取byte数组
+            byte[] publicKeyEncoded = publicKey.getEncoded();
+            byte[] privateKeyEncoded = privateKey.getEncoded();
+            // 进行Base64编码
+            String publicKeyString = base64encode(publicKeyEncoded);
+            String privateKeyString = base64encode(privateKeyEncoded);
+            // 保存文件
+            FileUtils.writeStringToFile(new File(pubPath), publicKeyString, StandardCharsets.UTF_8);
+            FileUtils.writeStringToFile(new File(priPath), privateKeyString, StandardCharsets.UTF_8);
+        } catch (NoSuchAlgorithmException | IOException e) {
+            e.printStackTrace();
         }
-        // 获取密钥对
-        KeyPair keyPair = keyPairGenerator.generateKeyPair();
-        // 获取公钥
-        PublicKey publicKey = keyPair.getPublic();
-        // 获取私钥
-        PrivateKey privateKey = keyPair.getPrivate();
-        // 获取byte数组
-        byte[] publicKeyEncoded = publicKey.getEncoded();
-        byte[] privateKeyEncoded = privateKey.getEncoded();
-        // 进行Base64编码
-        String publicKeyString = base64encode(publicKeyEncoded);
-        String privateKeyString = base64encode(privateKeyEncoded);
-        // 保存文件
-        FileUtils.writeStringToFile(new File(pubPath), publicKeyString, StandardCharsets.UTF_8);
-        FileUtils.writeStringToFile(new File(priPath), privateKeyString, StandardCharsets.UTF_8);
+
 
     }
 
@@ -320,24 +323,24 @@ public class SecureUtil {
      * @param input : 原文
      * @param key   : 密钥
      * @return {@link String}
-     * @throws Exception 异常
      */
-    public static String rsaEncrypt(Key key, String input) throws BadPaddingException, IllegalBlockSizeException, InvalidKeyException {
-        // 创建加密对象
-        // 参数表示加密算法
-        Cipher cipher = null;
+    public static String rsaEncrypt(Key key, String input) {
         try {
-            cipher = Cipher.getInstance(ALGORITHM_RSA);
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException ignore) {
+            // 创建加密对象
+            // 参数表示加密算法
+            Cipher cipher = Cipher.getInstance(ALGORITHM_RSA);
+            // 初始化加密
+            // 第一个参数:加密的模式
+            // 第二个参数：使用私钥进行加密
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            // 私钥加密
+            byte[] bytes = cipher.doFinal(input.getBytes());
+            // 对密文进行Base64编码
+            return base64encode(bytes);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
+            e.printStackTrace();
         }
-        // 初始化加密
-        // 第一个参数:加密的模式
-        // 第二个参数：使用私钥进行加密
-        cipher.init(Cipher.ENCRYPT_MODE, key);
-        // 私钥加密
-        byte[] bytes = cipher.doFinal(input.getBytes());
-        // 对密文进行Base64编码
-        return base64encode(bytes);
+        return null;
     }
 
     /**
@@ -346,23 +349,24 @@ public class SecureUtil {
      * @param encrypted : 密文
      * @param key       : 密钥
      * @return {@link String}
-     * @throws Exception 异常
      */
-    public static String rsaDecrypt(Key key, String encrypted) throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
-        // 创建加密对象
-        // 参数表示加密算法
-        Cipher cipher = null;
+    public static String rsaDecrypt(Key key, String encrypted) {
+
         try {
-            cipher = Cipher.getInstance(ALGORITHM_RSA);
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+            // 创建加密对象
+            // 参数表示加密算法
+            Cipher cipher = Cipher.getInstance(ALGORITHM_RSA);
+            // 使用密钥进行解密
+            cipher.init(Cipher.DECRYPT_MODE, key);
+            // 由于密文进行了Base64编码, 在这里需要进行解码
+            byte[] decode = base64decode(encrypted);
+            // 对密文进行解密，不需要使用base64，因为原文不会乱码
+            byte[] bytes1 = cipher.doFinal(decode);
+            return new String(bytes1);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+            e.printStackTrace();
         }
-        // 使用密钥进行解密
-        cipher.init(Cipher.DECRYPT_MODE, key);
-        // 由于密文进行了Base64编码, 在这里需要进行解码
-        byte[] decode = base64decode(encrypted);
-        // 对密文进行解密，不需要使用base64，因为原文不会乱码
-        byte[] bytes1 = cipher.doFinal(decode);
-        return new String(bytes1);
+        return null;
 
     }
 
@@ -372,23 +376,23 @@ public class SecureUtil {
      * @param input      : 原文
      * @param privateKey : 私钥
      * @return {@link String}
-     * @throws Exception 异常
      */
-    public static String getSignature(String input, PrivateKey privateKey) throws InvalidKeyException, SignatureException {
-        // 获取签名对象
-        Signature signature = null;
+    public static String getSignature(String input, PrivateKey privateKey) {
         try {
-            signature = Signature.getInstance(ALGORITHM_RSA);
-        } catch (NoSuchAlgorithmException ignore) {
+            // 获取签名对象
+            Signature signature = Signature.getInstance(ALGORITHM_RSA);
+            // 初始化签名
+            signature.initSign(privateKey);
+            // 传入原文
+            signature.update(input.getBytes());
+            // 开始签名
+            byte[] sign = signature.sign();
+            // 对签名数据进行Base64编码
+            return base64encode(sign);
+        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
+            e.printStackTrace();
         }
-        // 初始化签名
-        signature.initSign(privateKey);
-        // 传入原文
-        signature.update(input.getBytes());
-        // 开始签名
-        byte[] sign = signature.sign();
-        // 对签名数据进行Base64编码
-        return base64encode(sign);
+        return null;
     }
 
     /**
@@ -398,21 +402,21 @@ public class SecureUtil {
      * @param publicKey     : 公钥
      * @param signatureData : 签名
      * @return boolean
-     * @throws Exception 异常
      */
-    public static boolean verifySignature(String input, PublicKey publicKey, String signatureData) throws InvalidKeyException, SignatureException {
-        // 获取签名对象
-        Signature signature = null;
+    public static boolean verifySignature(String input, PublicKey publicKey, String signatureData) {
         try {
-            signature = Signature.getInstance(ALGORITHM_RSA);
-        } catch (NoSuchAlgorithmException ignore) {
+            // 获取签名对象
+            Signature signature = Signature.getInstance(ALGORITHM_RSA);
+            // 初始化签名
+            signature.initVerify(publicKey);
+            // 传入原文
+            signature.update(input.getBytes());
+            // 校验数据
+            return signature.verify(base64decode(signatureData));
+        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
+            e.printStackTrace();
         }
-        // 初始化签名
-        signature.initVerify(publicKey);
-        // 传入原文
-        signature.update(input.getBytes());
-        // 校验数据
-        return signature.verify(base64decode(signatureData));
+        return false;
     }
 
 
