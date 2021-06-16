@@ -1,12 +1,6 @@
 package com.cgp.common.autoconfigure;
 
 import com.alibaba.fastjson.support.spring.GenericFastJsonRedisSerializer;
-import com.cgp.common.queue.RedisDelayQueue;
-import com.cgp.common.queue.RedisMq;
-import com.cgp.common.service.RedisLock;
-import com.cgp.common.service.RedisService;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
@@ -28,27 +22,8 @@ import javax.annotation.Resource;
  * @date 2020-10-13
  */
 @Configuration
-@ConditionalOnClass({RedisService.class, RedisLock.class})
 @ConditionalOnProperty(prefix = "manaphy", name = "redis", havingValue = "true", matchIfMissing = true)
 public class RedisServiceAutoConfigure {
-
-    @Bean
-    @ConditionalOnMissingBean
-    public RedisService redisService() {
-        return new RedisService();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public RedisMq redisMq() {
-        return new RedisMq();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public RedisDelayQueue redisDelayQueue() {
-        return new RedisDelayQueue();
-    }
 
     @Resource
     private RedisConnectionFactory redisConnectionFactory;

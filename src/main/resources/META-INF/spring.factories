@@ -7,4 +7,7 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   com.cgp.common.autoconfigure.RestTemplateConfig,\
   com.cgp.common.autoconfigure.MybatisPlusConfig,\
   com.cgp.common.autoconfigure.RedisServiceAutoConfigure,\
+  com.cgp.common.service.RedisService,\
+  com.cgp.common.service.RedisLock,\
+  com.cgp.common.queue.RedisMq,\
   com.cgp.common.utils.SpringUtils

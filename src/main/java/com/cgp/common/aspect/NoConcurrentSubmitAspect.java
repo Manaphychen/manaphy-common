@@ -66,13 +66,8 @@ public class NoConcurrentSubmitAspect {
         String path = request.getServletPath();
         String key = getKey(token, path);
         String clientId = getClientId();
-
         boolean isSuccess = redisLock.tryLock(key, clientId, lockSeconds);
-//        log.info("tryLock key = {}, clientId = {}", key, clientId);
-        // 主要逻辑
         if (isSuccess) {
-//            log.info("获取锁成功, key = {}, clientId = {}", key, clientId);
-            // 获取锁成功
             Object result;
             try {
                 // 执行进程
@@ -80,7 +75,6 @@ public class NoConcurrentSubmitAspect {
             } finally {
                 // 解锁
                 redisLock.releaseLock(key, clientId);
-//                log.info("释放锁成功, key = {}, clientId = {}", key, clientId);
             }
             return result;
         } else {
